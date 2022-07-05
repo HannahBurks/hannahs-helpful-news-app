@@ -25,3 +25,10 @@ exports.fetchArticlesbyId = (article_id) => {
       });
   };
 
+  exports.updateArticleById = ({article_id, changeToVote}) => {
+    return db.query('UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *',
+    [changeToVote, article_id]).then(({ rows }) => {
+        return rows[0];
+    });
+    
+};

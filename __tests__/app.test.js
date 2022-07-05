@@ -29,23 +29,23 @@ describe("nc news", () => {
         });
     });
   });
-describe("Get /api/articles/", () => {
-  test("Responds with 200 and array of article objects ", () => {
-    return request(app)
-      .get("/api/articles")
-      .expect(200)
-      .then(({ body: { articles } }) => {
-        articles.forEach((article) => {
-          expect(article).toHaveProperty("author");
-          expect(article).toHaveProperty("title");
-          expect(article).toHaveProperty("article_id");
-          expect(article).toHaveProperty("body");
-          expect(article).toHaveProperty("topic");
-          expect(article).toHaveProperty("created_at");
-          expect(article).toHaveProperty("votes");
-          expect(articles.length).toBe(12);
+  describe("Get /api/articles/", () => {
+    test("Responds with 200 and array of article objects ", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          articles.forEach((article) => {
+            expect(article).toHaveProperty("author");
+            expect(article).toHaveProperty("title");
+            expect(article).toHaveProperty("article_id");
+            expect(article).toHaveProperty("body");
+            expect(article).toHaveProperty("topic");
+            expect(article).toHaveProperty("created_at");
+            expect(article).toHaveProperty("votes");
+            expect(articles.length).toBe(12);
+          });
         });
-      });
     });
   });
 });
@@ -74,19 +74,81 @@ describe("Get /api/articles/:article_id", () => {
     return request(app)
       .get(`/api/articles/${article_id}`)
       .expect(404)
-      .then(({ body:{ msg } }) => {
-       expect(msg).toBe(`No article found for article_id: ${article_id}`);
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe(`No article found for article_id: ${article_id}`);
+      });
+  });
+});
+describe("Get /api/articles/:article_id", () => {
+  test("Responds with 400 and error message if given a string instead of number for ID", () => {
+    const article_id = "PinaColada";
+    return request(app)
+      .get(`/api/articles/${article_id}`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Incorrect type - this must be a number");
+      });
+  });
+});
+describe("PATCH /api/articles/:article_id", () => {
+  test("Responds with status 200 and object with increased vote count", () => {
+    const article_id = 3;
+    const voteUpdate = { inc_votes: 5 };
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .send(voteUpdate)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toEqual({
+          article_id: 3,
+          title: "Eight pug gifs that remind me of mitch",
+          topic: "mitch",
+          author: "icellusedkars",
+          body: "some gifs",
+          created_at: "2020-11-03T09:12:00.000Z",
+          votes: 5,
         });
       });
   });
-  describe("Get /api/articles/:article_id", () => {
-    test("Responds with 400 and error message if given a string instead of number for ID", () => {
-      const article_id = 'PinaColada';
-      return request(app)
-        .get(`/api/articles/${article_id}`)
-        .expect(400)
-        .then(({ body:{ msg } }) => {
-         expect(msg).toBe("Not a valid ID - this must be a number.");
-          });
+  test("Responds with status 200 and object with decreased vote count", () => {
+    const article_id = 1;
+    const voteUpdate = { inc_votes: -20 };
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .send(voteUpdate)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toEqual({
+          article_id: 1,
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: "2020-07-09T20:11:00.000Z",
+          votes: 80,
         });
-    });
+      });
+  });
+  test("Responds with status 400 if given an empty object", () => {
+    const article_id = 6;
+    const voteUpdate = {};
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .send(voteUpdate)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("missing required fields");
+      })
+  });
+  test("Responds with status 400 if given incorrect value type for vote update", () => {
+    const article_id = 6;
+    const voteUpdate = {inc_votes: "Here are some extra votes"};
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .send(voteUpdate)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Incorrect type - this must be a number");
+      })
+  });
+});

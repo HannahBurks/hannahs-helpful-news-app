@@ -3,6 +3,7 @@ const {
   getTopics,
   getArticles,
   getArticlesById,
+  patchArticleById
 } = require("./controllers/controller");
 
 const app = express();
@@ -10,6 +11,7 @@ app.use(express.json());
 app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id", getArticlesById);
 app.get("/api/articles", getArticles);
+app.patch("/api/articles/:article_id",patchArticleById);
 
 const customErr = app.use((err, req, res, next) => {
 if(err.status && err.msg) {
@@ -17,9 +19,15 @@ if(err.status && err.msg) {
 } else next(err);
 });
 
-const invalidID = app.use((err, req, res, next) => {
+const emptyPatch = app.use((err,req,res,next)=> {
+    if (err.code === '23502') {
+      res.status(400).send({ msg: "missing required fields" });
+    } else next(err);
+  });
+
+const stringInsteadOfNumber = app.use((err, req, res, next) => {
     if (err.code === '22P02') {
-      res.status(400).send({ msg: "Not a valid ID - this must be a number." });
+      res.status(400).send({ msg: "Incorrect type - this must be a number" });
     } else next(err);
   });
 
