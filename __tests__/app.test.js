@@ -35,6 +35,7 @@ describe("nc news", () => {
         .get("/api/articles")
         .expect(200)
         .then(({ body: { articles } }) => {
+          expect(articles.length).toBe(12);
           articles.forEach((article) => {
             expect(article).toHaveProperty("author");
             expect(article).toHaveProperty("title");
@@ -43,7 +44,6 @@ describe("nc news", () => {
             expect(article).toHaveProperty("topic");
             expect(article).toHaveProperty("created_at");
             expect(article).toHaveProperty("votes");
-            expect(articles.length).toBe(12);
           });
         });
     });
@@ -56,7 +56,7 @@ describe("Get /api/articles/:article_id", () => {
       .get(`/api/articles/${article_id}`)
       .expect(200)
       .then(({ body }) => {
-        expect(body.articles).toEqual({
+        expect(body.article).toEqual({
           article_id: 2,
           title: "Sony Vaio; or, The Laptop",
           topic: "mitch",
@@ -67,8 +67,6 @@ describe("Get /api/articles/:article_id", () => {
         });
       });
   });
-});
-describe("Get /api/articles/:article_id", () => {
   test("Responds with 404 and error message if given an ID that does not exist", () => {
     const article_id = 220;
     return request(app)
@@ -78,8 +76,6 @@ describe("Get /api/articles/:article_id", () => {
         expect(msg).toBe(`No article found for article_id: ${article_id}`);
       });
   });
-});
-describe("Get /api/articles/:article_id", () => {
   test("Responds with 400 and error message if given a string instead of number for ID", () => {
     const article_id = "PinaColada";
     return request(app)
@@ -151,4 +147,27 @@ describe("PATCH /api/articles/:article_id", () => {
         expect(msg).toBe("Incorrect type - this must be a number");
       })
   });
+test("Responds with status 404 if give article_id that does not exist", () => {
+  const article_id = 687;
+  const voteUpdate = {inc_votes: 6};
+  return request(app)
+    .patch(`/api/articles/${article_id}`)
+    .send(voteUpdate)
+    .expect(404)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe(`No article found for article_id: ${article_id}`);
+    })
 });
+test("Responds with 400 and error message if given a string instead of number for ID", () => {
+  const article_id = "tofu";
+  const voteUpdate = {inc_votes: 8};
+  return request(app)
+    .patch(`/api/articles/${article_id}`)
+    .send(voteUpdate)
+    .expect(400)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Incorrect type - this must be a number");
+    })
+});
+});
+

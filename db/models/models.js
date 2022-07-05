@@ -28,6 +28,12 @@ exports.fetchArticlesbyId = (article_id) => {
   exports.updateArticleById = ({article_id, changeToVote}) => {
     return db.query('UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *',
     [changeToVote, article_id]).then(({ rows }) => {
+        if (!rows[0]) {
+            return Promise.reject({
+              status: 404,
+              msg: `No article found for article_id: ${article_id}`,
+            });
+          }
         return rows[0];
     });
     
