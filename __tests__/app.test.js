@@ -64,6 +64,7 @@ describe("Get /api/articles/:article_id", () => {
           body: "Call me Mitchell. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would buy a laptop about a little and see the codey part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and methodically knocking people’s hats off—then, I account it high time to get to coding as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the laptop. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the the Vaio with me.",
           created_at: "2020-10-16T05:03:00.000Z",
           votes: 0,
+          comment_count: "0",
         });
       });
   });
@@ -193,5 +194,43 @@ describe("Get/api/users", () => {
           expect(msg).toBe("Invalid path");
         });
     });
- 
-
+    describe("GET /api/articles/:article_id (comment count)", () => {
+      test("Responds with 200 and an array of objects including a new key of 'comment_count", () => {
+        const article_id = 3;
+        return request(app)
+          .get(`/api/articles/${article_id}`)
+          .expect(200)
+          .then(({ body }) => {
+            expect(typeof +body.article.comment_count).toBe("number")
+            expect(body.article).toEqual({
+              article_id: 3,
+              title: "Eight pug gifs that remind me of mitch",
+              topic: "mitch",
+              author: "icellusedkars",
+              body: "some gifs",
+              created_at: "2020-11-03T09:12:00.000Z",
+              votes: 0,
+              comment_count: "2",
+            });
+          });
+      });
+      test("Responds with 404 and error message if given an ID that does not exist", () => {
+        const article_id = 270;
+        return request(app)
+          .get(`/api/articles/${article_id}`)
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe(`No article found for article_id: ${article_id}`);
+          });
+      });
+      test("Responds with 400 and error message if given a string instead of number for ID", () => {
+        const article_id = "Hi Mark";
+        return request(app)
+          .get(`/api/articles/${article_id}`)
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Incorrect type - this must be a number");
+          });
+      });
+    });
+  

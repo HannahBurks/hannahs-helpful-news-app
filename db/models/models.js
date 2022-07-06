@@ -7,14 +7,14 @@ exports.fetchAllTopics = () => {
 };
 
 exports.fetchArticles = () => {
-  return db.query(`SELECT * FROM articles;`).then((results) => {
+  return db.query(`SELECT articles.* , COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments on comments.article_id = articles.article_id GROUP BY articles.article_id`).then((results) => {
     return results.rows;
   });
 };
 
 exports.fetchArticlesbyId = (article_id) => {
     
-  return db.query(`SELECT * FROM articles WHERE article_id = $1;`, [article_id]).then((results) => {
+  return db.query(`SELECT articles.* , COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments on comments.article_id = articles.article_id WHERE articles.article_id = $1 GROUP BY articles.article_id;`, [article_id]).then((results) => {
         if (!results.rows[0]) {
           return Promise.reject({
             status: 404,
