@@ -233,4 +233,33 @@ describe("Get/api/users", () => {
           });
       });
     });
+    describe("Get /api/articles/", () => {
+      test("Responds with 200 and array of article objects with newly added comment_count property", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(12);
+            articles.forEach((article) => {
+              expect(article).toHaveProperty("author");
+              expect(article).toHaveProperty("title");
+              expect(article).toHaveProperty("article_id");
+              expect(article).toHaveProperty("body");
+              expect(article).toHaveProperty("topic");
+              expect(article).toHaveProperty("created_at");
+              expect(article).toHaveProperty("votes");
+              expect(article).toHaveProperty("comment_count")
+            });
+          });
+      });
+      test("Responds with 404 when given a path that does not exist ie: /api/artiquids", () => {
+        return request(app)
+          .get("/api/artiquids")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Invalid path");
+          });
+      });
+    });
+    
   
