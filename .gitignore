@@ -1,3 +1,6 @@
 node_modules
 .env.*
 node_modules
+test-table.sql
+test.table_data_txt
+table_data.txt

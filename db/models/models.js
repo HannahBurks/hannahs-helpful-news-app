@@ -7,7 +7,7 @@ exports.fetchAllTopics = () => {
 };
 
 exports.fetchArticles = () => {
-  return db.query(`SELECT articles.* , COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments on comments.article_id = articles.article_id GROUP BY articles.article_id`).then((results) => {
+  return db.query(`SELECT articles.* , COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments on comments.article_id = articles.article_id GROUP BY articles.article_id ORDER BY articles.created_at DESC;`).then((results) => {
     return results.rows;
   });
 };
@@ -44,3 +44,19 @@ exports.fetchAllUsers = () => {
       return results.rows;
     });
   };
+
+  exports.fetchCommentsByArticleId = (article_id) => {
+      console.log(article_id)
+  return db.query(`SELECT comments.article_id, comments.comment_id, comments.votes, comments.created_at, comments.author, comments.body
+  FROM comments
+  JOIN articles ON articles.article_id = comments.article_id WHERE articles.article_id = $1
+  `, [article_id]).then((results) => {
+    if (!results.rows[0]) {
+      return Promise.reject({
+        status: 404,
+        msg: `No article found for article_id: ${article_id}`,
+      });
+    }
+    return results.rows;
+  });
+};

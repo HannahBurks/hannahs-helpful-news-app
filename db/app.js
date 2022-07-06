@@ -4,7 +4,8 @@ const {
   getArticles,
   getArticlesById,
   patchArticleById,
-  getUsers
+  getUsers,
+  getCommentsByArticleId
 } = require("./controllers/controller");
 const{customErr, emptyPatch, stringInsteadOfNumber,invalidPath, serverError} = require('./errors.js')
 
@@ -15,6 +16,7 @@ app.get("/api/articles/:article_id", getArticlesById);
 app.get("/api/articles", getArticles);
 app.patch("/api/articles/:article_id",patchArticleById);
 app.get("/api/users", getUsers);
+app.get("/api/articles/:article_id/comments",getCommentsByArticleId)
 
 app.use(customErr);
 app.use(emptyPatch);
