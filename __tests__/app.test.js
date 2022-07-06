@@ -169,5 +169,29 @@ test("Responds with 400 and error message if given a string instead of number fo
       expect(msg).toBe("Incorrect type - this must be a number");
     })
 });
-});
+})
+describe("Get/api/users", () => {
+  test("Responds with 200 and an array of objects", () => {
+    return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body: { users } }) => {
+          expect(users.length).toBe(4);
+          users.forEach((user) => {
+            expect(user).toHaveProperty("username");
+            expect(user).toHaveProperty("name");
+            expect(user).toHaveProperty("avatar_url");
+          })
+        })
+      })
+    })
+    test("Responds with 404 when given a path that does not exist ie: /api/userrrs", () => {
+      return request(app)
+        .get("/api/userrrs")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Invalid path");
+        });
+    });
+ 
 
