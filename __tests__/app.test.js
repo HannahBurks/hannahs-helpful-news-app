@@ -3,6 +3,7 @@ const data = require("../db/data/test-data");
 const db = require("../db/connection.js");
 const request = require("supertest");
 const app = require("../db/app.js");
+const sorted = require('jest-sorted');
 
 beforeEach(() => seed(data));
 afterAll(() => db.end());
@@ -185,7 +186,6 @@ describe("Get/api/users", () => {
           })
         })
       })
-    })
     test("Responds with 404 when given a path that does not exist ie: /api/userrrs", () => {
       return request(app)
         .get("/api/userrrs")
@@ -194,6 +194,7 @@ describe("Get/api/users", () => {
           expect(msg).toBe("Invalid path");
         });
     });
+  })
     describe("GET /api/articles/:article_id (comment count)", () => {
       test("Responds with 200 and an array of objects including a new key of 'comment_count", () => {
         const article_id = 3;
@@ -239,6 +240,7 @@ describe("Get/api/users", () => {
           .get("/api/articles")
           .expect(200)
           .then(({ body: { articles } }) => {
+            expect(articles).toBeSortedBy('created_at', { descending: false, coerce: true})
             expect(articles.length).toBe(12);
             articles.forEach((article) => {
               expect(article).toHaveProperty("author");
@@ -261,5 +263,59 @@ describe("Get/api/users", () => {
           });
       });
     });
+    describe("GET /api/articles/:article_id/comments", () => {
+      test("Responds with 200 status and an array of objects from comments pertaining to the given article ID", () => {
+        const article_id = 3;
+        return request(app)
+          .get(`/api/articles/${article_id}/comments`)
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.length).toBe(2);
+            expect(body).toEqual([{
+              body: "git push origin master",
+              comment_id: 10,
+              votes: 0,
+              author: "icellusedkars",
+              article_id: 3,
+              created_at: "2020-06-20T07:24:00.000Z",
+            },
+            {
+              body: "Ambidextrous marsupial",
+              votes: 0,
+              author: "icellusedkars",
+              article_id: 3,
+              created_at: "2020-09-19T23:10:00.000Z",
+              comment_id: 11,
+            }]
+      )});
+      });
+      test("Responds with 404 when given a path that does not exist ie: /api/articles/:article_id/comMENENts", () => {
+        return request(app)
+          .get("/api/articles/:article_id/comMENENts")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Invalid path");
+          });
+      });
+    test("Responds with 404 and error message if given an ID that does not exist", () => {
+      const article_id = 98;
+      return request(app)
+        .get(`/api/articles/${article_id}/comments`)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe(`No article found for article_id: ${article_id}`);
+        });
+    });
+  test("Responds with 400 and error message if given a string instead of number for ID", () => {
+    const article_id = "doodlebob";
+    return request(app)
+      .get(`/api/articles/${article_id}/comments`)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Incorrect type - this must be a number");
+      });
+  });
+});
+   
     
-  
+    
