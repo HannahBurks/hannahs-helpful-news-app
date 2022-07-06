@@ -186,7 +186,6 @@ describe("Get/api/users", () => {
           })
         })
       })
-    })
     test("Responds with 404 when given a path that does not exist ie: /api/userrrs", () => {
       return request(app)
         .get("/api/userrrs")
@@ -195,6 +194,7 @@ describe("Get/api/users", () => {
           expect(msg).toBe("Invalid path");
         });
     });
+  })
     describe("GET /api/articles/:article_id (comment count)", () => {
       test("Responds with 200 and an array of objects including a new key of 'comment_count", () => {
         const article_id = 3;
@@ -270,6 +270,7 @@ describe("Get/api/users", () => {
           .get(`/api/articles/${article_id}/comments`)
           .expect(200)
           .then(({ body }) => {
+            expect(body.length).toBe(2);
             expect(body).toEqual([{
               body: "git push origin master",
               comment_id: 10,
