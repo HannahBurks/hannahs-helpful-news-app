@@ -4,6 +4,8 @@ const db = require("../db/connection.js");
 const request = require("supertest");
 const app = require("../db/app.js");
 const sorted = require('jest-sorted');
+const { post } = require("../db/app.js");
+
 
 beforeEach(() => seed(data));
 afterAll(() => db.end());
@@ -316,6 +318,95 @@ describe("Get/api/users", () => {
       });
   });
 });
-   
-    
-    
+describe("POST /api/articles/:article_id/comments", () => {
+  test("Responds with 201 status and comment newly added to database", () => {
+    const article_id = 4;  
+    const newComment = {
+      username: 'icellusedkars',
+      body: 'But soft, what light through yonder window breaks? It is the East, and Juliet is the sun.',
+    }
+    return request(app)
+    .post(`/api/articles/${article_id}/comments`)
+.send(newComment)
+.expect(201)
+.then(({body}) => {
+ expect(body.comment).toMatchObject({
+   article_id: expect.any(Number),
+   author: expect.any(String),
+   body: expect.any(String),
+   comment_id: expect.any(Number),
+   created_at: expect.any(String),
+   votes: expect.any(Number),
+ })
+})
+})
+test("Responds with 400 status and error message if given a username that does not exist in users", () => {
+  const article_id = 4;  
+  const newComment = {
+    username: 'hannyindahouse',
+    body: 'To be, or not to be...that is the question?',
+  }
+  return request(app)
+    .post(`/api/articles/${article_id}/comments`)
+.send(newComment)
+.expect(400)
+.then(({ body: { msg } }) => {
+  expect(msg).toBe("Username does not exist");
+  })
+})
+test("Responds with 404 status and error message if given an article_id number that does not exist", () => {
+  const article_id = 498;  
+  const newComment = {
+    username: 'icellusedkars',
+    body: 'Yesterday...all my troubles seemed so far away',
+  }
+  return request(app)
+    .post(`/api/articles/${article_id}/comments`)
+.send(newComment)
+.expect(404)
+.then(({ body: { msg } }) => {
+  expect(msg).toBe("Article ID does not exist");
+  })
+})
+test("Responds with 400 status and error message if given an empty post", () => {
+  const article_id = 4;  
+  const newComment = {
+  }
+  return request(app)
+    .post(`/api/articles/${article_id}/comments`)
+.send(newComment)
+.expect(400)
+.then(({ body: { msg } }) => {
+  expect(msg).toBe("missing required fields");
+  })
+})
+test("Responds with 400 status and error message if given an empty post", () => {
+  const article_id = 4;  
+  const newComment = {
+ monkey: 'hello',
+  body: "hiya"}
+  
+  return request(app)
+.post(`/api/articles/${article_id}/comments`)
+.send(newComment)
+.expect(400)
+.then(({ body: { msg } }) => {
+  expect(msg).toBe("failing Schema, please check your inputs");
+  })
+})
+test("Responds with 400 and error message if given a string instead of number for ID", () => {
+  const article_id = "banana phone";
+  const newComment = {
+    username: 'icellusedkars',
+    body: 'Yesterday...all my troubles seemed so far away',
+  }
+  return request(app)
+  .post(`/api/articles/${article_id}/comments`)
+  .send(newComment)
+    .expect(400)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Incorrect type - this must be a number");
+    });
+});
+
+})

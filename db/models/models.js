@@ -1,4 +1,5 @@
 const db = require("../connection.js");
+const users = require("../data/test-data/users.js");
 
 exports.fetchAllTopics = () => {
   return db.query(`SELECT * FROM topics;`).then((results) => {
@@ -46,7 +47,6 @@ exports.fetchAllUsers = () => {
   };
 
   exports.fetchCommentsByArticleId = (article_id) => {
-      console.log(article_id)
   return db.query(`SELECT comments.article_id, comments.comment_id, comments.votes, comments.created_at, comments.author, comments.body
   FROM comments
   JOIN articles ON articles.article_id = comments.article_id WHERE articles.article_id = $1
@@ -60,3 +60,11 @@ exports.fetchAllUsers = () => {
     return results.rows;
   });
 };
+
+exports.insertComment = (username, body, id) => { 
+    return db.query(`SELECT articles.article_id FROM articles WHERE article_id = ${id}`).then(()=>{
+      return db.query(`INSERT INTO comments (body, author, article_id) VALUES ($1, $2, $3) RETURNING *;`,[body, username, id]).then(({ rows }) => {
+        return rows[0]
+        })
+          })
+          }
