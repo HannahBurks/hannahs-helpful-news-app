@@ -62,9 +62,7 @@ exports.fetchAllUsers = () => {
 };
 
 exports.insertComment = (username, body, id) => { 
-    return db.query(`SELECT articles.article_id FROM articles WHERE article_id = ${id}`).then(()=>{
       return db.query(`INSERT INTO comments (body, author, article_id) VALUES ($1, $2, $3) RETURNING *;`,[body, username, id]).then(({ rows }) => {
         return rows[0]
         })
-          })
           }

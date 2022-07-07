@@ -330,8 +330,11 @@ describe("POST /api/articles/:article_id/comments", () => {
 .send(newComment)
 .expect(201)
 .then(({body}) => {
+expect(body.comment['article_id']).toBe(4),
+expect(body.comment['author']).toBe("icellusedkars"),
+expect(body.comment['body']).toBe("But soft, what light through yonder window breaks? It is the East, and Juliet is the sun."),
  expect(body.comment).toMatchObject({
-   article_id: expect.any(Number),
+  article_id: expect.any(Number),
    author: expect.any(String),
    body: expect.any(String),
    comment_id: expect.any(Number),
@@ -340,7 +343,7 @@ describe("POST /api/articles/:article_id/comments", () => {
  })
 })
 })
-test("Responds with 400 status and error message if given a username that does not exist in users", () => {
+test("Responds with 404 status and error message if given a username that does not exist in users", () => {
   const article_id = 4;  
   const newComment = {
     username: 'hannyindahouse',
@@ -349,7 +352,7 @@ test("Responds with 400 status and error message if given a username that does n
   return request(app)
     .post(`/api/articles/${article_id}/comments`)
 .send(newComment)
-.expect(400)
+.expect(404)
 .then(({ body: { msg } }) => {
   expect(msg).toBe("Username does not exist");
   })
@@ -368,7 +371,7 @@ test("Responds with 404 status and error message if given an article_id number t
   expect(msg).toBe("Article ID does not exist");
   })
 })
-test("Responds with 400 status and error message if given an empty post", () => {
+test("Responds with 400 status and error message if missing required data", () => {
   const article_id = 4;  
   const newComment = {
   }
