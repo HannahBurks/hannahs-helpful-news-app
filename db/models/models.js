@@ -13,7 +13,7 @@ exports.fetchArticles = async (sortby = 'created_at', order = 'DESC', topics) =>
   if (order !== 'DESC' && order !== 'ASC'){
     return Promise.reject({ status: 404, msg: 'order not valid - must be ASC or DESC' });
     }
-  if (!articles[0].hasOwnProperty(sortby)){
+  if (sortby !== 'created_at' && sortby !== 'title' && sortby !== 'article_id' && sortby !== 'topic' && sortby !== 'author' && sortby !== 'body' && sortby !== 'votes'){
     return Promise.reject({ status: 404, msg: 'sort by catagory does not exist' });
   }
   if (topics === undefined){

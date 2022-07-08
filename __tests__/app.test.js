@@ -418,7 +418,7 @@ describe("GET /api/articles (queries)", () => {
       .get("/api/articles?sort_by=author&order=ASC&topic=mitch")
       .expect(200)
       .then(({ body: {articles} }) => {
-        expect(articles).toBeSortedBy('author', { descending: false, coerce: true})
+        expect(articles).toBeSortedBy('author', { descending: false})
         articles.forEach((article) => {
           expect(article.topic).toEqual("mitch");
         })
