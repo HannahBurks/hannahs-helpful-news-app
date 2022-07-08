@@ -27,10 +27,11 @@ exports.getArticles = (req, res, next) => {
 const query = req.query
 const sortby = query.sort_by;
 const order = query.order;
-const topic = query.topic
-  fetchArticles(sortby, order, topic).then((articles) => {
+const filteredtopic = query.topic
+  fetchArticles(sortby, order, filteredtopic).then((articles) => {
     res.status(200).send({ articles });
   }).catch((err)=>{
+    console.log(err)
     next(err)
   });
 };

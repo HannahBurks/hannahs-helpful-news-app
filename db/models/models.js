@@ -9,30 +9,37 @@ exports.fetchAllTopics = () => {
   });
 };
 
-exports.fetchArticles = async (sortby = 'created_at', order = 'DESC', topics) => {
+exports.fetchArticles = async (sortby = 'created_at', order = 'DESC', filteredtopic) => {
+
+  const sortedByOptions = ['created_at', 'title', 'article_id','topic', 'author', 'body', 'votes']
   if (order !== 'DESC' && order !== 'ASC'){
     return Promise.reject({ status: 404, msg: 'order not valid - must be ASC or DESC' });
     }
-  if (sortby !== 'created_at' && sortby !== 'title' && sortby !== 'article_id' && sortby !== 'topic' && sortby !== 'author' && sortby !== 'body' && sortby !== 'votes'){
+  if (sortedByOptions.includes(sortby) === false){
     return Promise.reject({ status: 404, msg: 'sort by catagory does not exist' });
   }
-  if (topics === undefined){
-    return db.query(`SELECT articles.* , COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments on comments.article_id = articles.article_id GROUP BY articles.article_id ORDER BY articles.${sortby} ${order};`).then((results) => {
+  const queryValues = []
+  let string = `SELECT articles.* , COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments on comments.article_id = articles.article_id`;
+  if(filteredtopic){
+   const checkingArticles = await db.query(
+      `SELECT * FROM articles WHERE articles.topic = $1;`,[filteredtopic])
+  const checkingTopics = await db.query(`SELECT * FROM topics WHERE topics.slug = $1;`,[filteredtopic])
+  if (checkingArticles.rows.length === 0 && checkingTopics.rows.length >= 1) {
+    return checkingArticles.rows;
+    } 
+  if (checkingArticles.rows.length === 0 && checkingTopics.rows.length === 0) {
+    return Promise.reject({ status: 404, msg: 'topic not found' })
+  } else {
+  string += ` WHERE articles.topic = $1 `;
+  queryValues.push(filteredtopic)
+    }
+  }
+  string += ` GROUP BY articles.article_id ORDER BY articles.${sortby} ${order};`
+    return db.query(string, queryValues).then((results) => {
       return results.rows;})
-  } 
-  if(topics.length > 0){
-   const dbOutput = await db.query(
-      `SELECT * FROM articles WHERE articles.topic = $1;`,[topics]
-    );
-    if (dbOutput.rows.length === 0) {
-      return Promise.reject({ status: 404, msg: 'topic not found' });
-    } else {
-      return db.query(`SELECT articles.* , COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments on comments.article_id = articles.article_id  WHERE articles.topic = $1 GROUP BY articles.article_id ORDER BY articles.${sortby} ${order};`,[topics]).then((results) => {
-        return results.rows;})
-    }
-
-    }
-  } 
+}
+  
+  
 
 exports.fetchArticlesbyId = (article_id) => {
     
