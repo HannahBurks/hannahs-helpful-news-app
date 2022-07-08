@@ -416,7 +416,6 @@ describe("POST /api/articles/:article_id/comments", () => {
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Incorrect type - this must be a number");
       });
-    S;
   });
 });
 describe("GET /api/articles (queries)", () => {
@@ -442,17 +441,17 @@ describe("GET /api/articles (queries)", () => {
   test("Responds with 404 and error message if a sortby does not exist", () => {
     return request(app)
       .get("/api/articles?sort_by=monkey&order=ASC&topic=cats")
-      .expect(404)
+      .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("sort by catagory does not exist");
+        expect(msg).toBe("bad request - sort by catagory does not exist");
       });
   });
   test("Responds with 404 and error message if order request is not DESC or ASC", () => {
     return request(app)
       .get("/api/articles?sort_by=author&order=biggest&topic=cats")
-      .expect(404)
+      .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("order not valid - must be ASC or DESC");
+        expect(msg).toBe("bad request - order not valid - must be ASC or DESC");
       });
   });
   test("Responds with 404 when given a path that does not exist ie: /api/artiquids", () => {
@@ -462,13 +461,37 @@ describe("GET /api/articles (queries)", () => {
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Invalid path");
       });
-  })
+  });
   test("Responds with 200 and empty array if given topic exists in topics but does not feature in articles", () => {
     return request(app)
       .get("/api/articles?sort_by=author&order=ASC&topic=paper")
       .expect(200)
-      .then(({ body: {articles}}) => {
+      .then(({ body: { articles } }) => {
         expect(articles).toEqual([]);
       });
   });
+})
+  describe("Get /api/comments/:comment_id", () => {
+    test("Responds with 204 and deletes given comment_id from comments ", () => {
+      const comment_id = 3;
+      return request(app).delete(`/api/comments/${comment_id}`).expect(204);
+    });
+test("Responds with 404 and error message if given a comment ID that does not exist", () => {
+  const comment_id = 370;
+  return request(app)
+    .delete(`/api/comments${comment_id}`)
+    .expect(404)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe(`Invalid path`);
+    });
+});
+test("Responds with 400 and error message if given a string instead of number for comment ID", () => {
+  const comment_id = "Ohana means family";
+  return request(app)
+    .delete(`/api/comments/${comment_id}`)
+    .expect(400)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Incorrect type - this must be a number");
+    });
+});
 });

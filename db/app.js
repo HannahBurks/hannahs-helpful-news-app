@@ -6,7 +6,8 @@ const {
   patchArticleById,
   getUsers,
   getCommentsByArticleId,
-  addNewComment
+  addNewComment,
+  deleteCommentById
 } = require("./controllers/controller");
 const{customErr, emptyPatchOrPost, stringInsteadOfNumber,invalidPath, serverError, noUser, noArticleId, failingSchema} = require('./errors.js')
 
@@ -19,7 +20,7 @@ app.patch("/api/articles/:article_id",patchArticleById);
 app.get("/api/users", getUsers);
 app.get("/api/articles/:article_id/comments",getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", addNewComment);
-
+app.delete("/api/comments/:comment_id", deleteCommentById)
 
 app.use(customErr);
 app.use(emptyPatchOrPost);
