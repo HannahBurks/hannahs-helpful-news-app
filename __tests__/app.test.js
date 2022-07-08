@@ -409,7 +409,53 @@ test("Responds with 400 and error message if given a string instead of number fo
     .expect(400)
     .then(({ body: { msg } }) => {
       expect(msg).toBe("Incorrect type - this must be a number");
-    });
+    });S
 });
+});
+describe("GET /api/articles (queries)", () => {
+  test("Responds with 200 and articles sorted, ordered and topic chosen by the given query", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author&order=ASC&topic=mitch")
+      .expect(200)
+      .then(({ body: {articles} }) => {
+        expect(articles).toBeSortedBy('author', { descending: false, coerce: true})
+        articles.forEach((article) => {
+          expect(article.topic).toEqual("mitch");
+        })
+        });
+      });
+      test("Responds with 404 and error message if a queries topic does not exist", () => {
+        return request(app)
+          .get("/api/articles?sort_by=author&order=ASC&topic=bananas")
+          .expect(404)
+          .then(({ body: {msg} }) => {
+            expect(msg).toBe("topic not found");
+            })
+            });
+            test("Responds with 404 and error message if a sortby does not exist", () => {
+              return request(app)
+                .get("/api/articles?sort_by=monkey&order=ASC&topic=cats")
+                .expect(404)
+                .then(({ body: {msg} }) => {
+                  expect(msg).toBe("sort by catagory does not exist");
+                  })
+                  });
+                  test("Responds with 404 and error message if order request is not DESC or ASC", () => {
+                    return request(app)
+                      .get("/api/articles?sort_by=author&order=biggest&topic=cats")
+                      .expect(404)
+                      .then(({ body: {msg} }) => {
+                        expect(msg).toBe("order not valid - must be ASC or DESC");
+                        })
+                        });
+                        test("Responds with 404 when given a path that does not exist ie: /api/artiquids", () => {
+                          return request(app)
+                            .get("/api/artiquids?sort_by=author&order=ASC&topic=cats")
+                            .expect(404)
+                            .then(({ body: { msg } }) => {
+                              expect(msg).toBe("Invalid path");
+                            });
+                        });
+                      });
+        
 
-})

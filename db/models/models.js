@@ -1,4 +1,6 @@
 const db = require("../connection.js");
+const { getTopics } = require("../controllers/controller.js");
+const articles = require("../data/test-data/articles.js");
 const users = require("../data/test-data/users.js");
 
 exports.fetchAllTopics = () => {
@@ -7,11 +9,30 @@ exports.fetchAllTopics = () => {
   });
 };
 
-exports.fetchArticles = () => {
-  return db.query(`SELECT articles.* , COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments on comments.article_id = articles.article_id GROUP BY articles.article_id ORDER BY articles.created_at DESC;`).then((results) => {
-    return results.rows;
-  });
-};
+exports.fetchArticles = async (sortby = 'created_at', order = 'DESC', topics) => {
+  if (order !== 'DESC' && order !== 'ASC'){
+    return Promise.reject({ status: 404, msg: 'order not valid - must be ASC or DESC' });
+    }
+  if (!articles[0].hasOwnProperty(sortby)){
+    return Promise.reject({ status: 404, msg: 'sort by catagory does not exist' });
+  }
+  if (topics === undefined){
+    return db.query(`SELECT articles.* , COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments on comments.article_id = articles.article_id GROUP BY articles.article_id ORDER BY articles.${sortby} ${order};`).then((results) => {
+      return results.rows;})
+  } 
+  if(topics.length > 0){
+   const dbOutput = await db.query(
+      `SELECT * FROM articles WHERE articles.topic = $1;`,[topics]
+    );
+    if (dbOutput.rows.length === 0) {
+      return Promise.reject({ status: 404, msg: 'topic not found' });
+    } else {
+      return db.query(`SELECT articles.* , COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments on comments.article_id = articles.article_id  WHERE articles.topic = $1 GROUP BY articles.article_id ORDER BY articles.${sortby} ${order};`,[topics]).then((results) => {
+        return results.rows;})
+    }
+
+    }
+  } 
 
 exports.fetchArticlesbyId = (article_id) => {
     
