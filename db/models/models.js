@@ -13,10 +13,10 @@ exports.fetchArticles = async (sortby = 'created_at', order = 'DESC', filteredto
 
   const sortedByOptions = ['created_at', 'title', 'article_id','topic', 'author', 'body', 'votes']
   if (order !== 'DESC' && order !== 'ASC'){
-    return Promise.reject({ status: 404, msg: 'order not valid - must be ASC or DESC' });
+    return Promise.reject({ status: 400, msg: 'bad request - order not valid - must be ASC or DESC' });
     }
   if (sortedByOptions.includes(sortby) === false){
-    return Promise.reject({ status: 404, msg: 'sort by catagory does not exist' });
+    return Promise.reject({ status: 400, msg: 'bad request - sort by catagory does not exist' });
   }
   const queryValues = []
   let string = `SELECT articles.* , COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments on comments.article_id = articles.article_id`;

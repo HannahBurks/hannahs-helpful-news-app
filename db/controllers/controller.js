@@ -31,7 +31,6 @@ const filteredtopic = query.topic
   fetchArticles(sortby, order, filteredtopic).then((articles) => {
     res.status(200).send({ articles });
   }).catch((err)=>{
-    console.log(err)
     next(err)
   });
 };
