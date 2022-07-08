@@ -1,4 +1,6 @@
 const db = require("../connection.js");
+const { getTopics } = require("../controllers/controller.js");
+const articles = require("../data/test-data/articles.js");
 const users = require("../data/test-data/users.js");
 
 exports.fetchAllTopics = () => {
@@ -7,11 +9,37 @@ exports.fetchAllTopics = () => {
   });
 };
 
-exports.fetchArticles = () => {
-  return db.query(`SELECT articles.* , COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments on comments.article_id = articles.article_id GROUP BY articles.article_id ORDER BY articles.created_at DESC;`).then((results) => {
-    return results.rows;
-  });
-};
+exports.fetchArticles = async (sortby = 'created_at', order = 'DESC', filteredtopic) => {
+
+  const sortedByOptions = ['created_at', 'title', 'article_id','topic', 'author', 'body', 'votes']
+  if (order !== 'DESC' && order !== 'ASC'){
+    return Promise.reject({ status: 400, msg: 'bad request - order not valid - must be ASC or DESC' });
+    }
+  if (sortedByOptions.includes(sortby) === false){
+    return Promise.reject({ status: 400, msg: 'bad request - sort by catagory does not exist' });
+  }
+  const queryValues = []
+  let string = `SELECT articles.* , COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments on comments.article_id = articles.article_id`;
+  if(filteredtopic){
+   const checkingArticles = await db.query(
+      `SELECT * FROM articles WHERE articles.topic = $1;`,[filteredtopic])
+  const checkingTopics = await db.query(`SELECT * FROM topics WHERE topics.slug = $1;`,[filteredtopic])
+  if (checkingArticles.rows.length === 0 && checkingTopics.rows.length >= 1) {
+    return checkingArticles.rows;
+    } 
+  if (checkingArticles.rows.length === 0 && checkingTopics.rows.length === 0) {
+    return Promise.reject({ status: 404, msg: 'topic not found' })
+  } else {
+  string += ` WHERE articles.topic = $1 `;
+  queryValues.push(filteredtopic)
+    }
+  }
+  string += ` GROUP BY articles.article_id ORDER BY articles.${sortby} ${order};`
+    return db.query(string, queryValues).then((results) => {
+      return results.rows;})
+}
+  
+  
 
 exports.fetchArticlesbyId = (article_id) => {
     

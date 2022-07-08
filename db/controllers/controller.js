@@ -24,8 +24,14 @@ next(err)
 
 
 exports.getArticles = (req, res, next) => {
-  fetchArticles().then((articles) => {
+const query = req.query
+const sortby = query.sort_by;
+const order = query.order;
+const filteredtopic = query.topic
+  fetchArticles(sortby, order, filteredtopic).then((articles) => {
     res.status(200).send({ articles });
+  }).catch((err)=>{
+    next(err)
   });
 };
 
@@ -60,6 +66,5 @@ exports.getUsers = (req, res, next) => {
        insertComment(username, body, article_id,).then((comment) => {
            res.status(201).send({ comment })
          }).catch((err) =>{
-             console.log(err)
             next(err)
        })};
