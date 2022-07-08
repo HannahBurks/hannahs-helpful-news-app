@@ -442,17 +442,17 @@ describe("GET /api/articles (queries)", () => {
   test("Responds with 404 and error message if a sortby does not exist", () => {
     return request(app)
       .get("/api/articles?sort_by=monkey&order=ASC&topic=cats")
-      .expect(404)
+      .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("sort by catagory does not exist");
+        expect(msg).toBe("bad request - sort by catagory does not exist");
       });
   });
   test("Responds with 404 and error message if order request is not DESC or ASC", () => {
     return request(app)
       .get("/api/articles?sort_by=author&order=biggest&topic=cats")
-      .expect(404)
+      .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("order not valid - must be ASC or DESC");
+        expect(msg).toBe("bad request - order not valid - must be ASC or DESC");
       });
   });
   test("Responds with 404 when given a path that does not exist ie: /api/artiquids", () => {
