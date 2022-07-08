@@ -94,3 +94,10 @@ exports.insertComment = (username, body, id) => {
         return rows[0]
         })
           }
+
+exports.deleteingComment = (comment_id) => {
+  console.log(comment_id)
+  return db.query(`DELETE FROM comments WHERE comment_id = $1 RETURNING *;`,[comment_id]).then((results) => {
+         return results.rows[0];
+  }
+)}
