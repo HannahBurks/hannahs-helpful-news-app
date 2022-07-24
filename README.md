@@ -15,3 +15,6 @@ PGDATABASE=nc_news
 
 Here you can find the following link to the hosted version on Heroku:
 https://git.heroku.com/hannybees-news-app.git/api
+
+Recommendations for running:
+ node 16.16.0, npm version: 8.11.0
