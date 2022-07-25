@@ -14,7 +14,7 @@ PGDATABASE=nc_news
 - To run tests you will need to run 'npm run test'
 
 Here you can find the following link to the hosted version on Heroku:
-https://git.heroku.com/hannybees-news-app.git/api + the path you wish to search (Paths can be found within the endpoints.json)
+https://git.heroku.com/hannybees-news-app.git/api 
 
 
 Recommendations for running:
