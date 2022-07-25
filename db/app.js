@@ -1,4 +1,10 @@
+
+
 const express = require("express");
+const cors = require('cors');
+const app = express();
+app.use(cors());
+
 const {
   getTopics,
   getArticles,
@@ -10,9 +16,14 @@ const {
   deleteCommentById,
   getApi
 } = require("./controllers/controller");
+
 const{customErr, emptyPatchOrPost, stringInsteadOfNumber,invalidPath, serverError, noUser, noArticleId, failingSchema} = require('./errors.js')
 
-const app = express();
+
+
+
+
+
 app.get("/api", getApi)
 app.use(express.json());
 app.get("/api/topics", getTopics);
