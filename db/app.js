@@ -12,6 +12,7 @@ const {
 const{customErr, emptyPatchOrPost, stringInsteadOfNumber,invalidPath, serverError, noUser, noArticleId, failingSchema} = require('./errors.js')
 
 const app = express();
+app.get("/api", controllers.getApi)
 app.use(express.json());
 app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id", getArticlesById);

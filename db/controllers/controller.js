@@ -10,6 +10,13 @@ const {
 
 } = require("../models/models");
 
+const endpoints = require("../../endpoints.json")
+
+exports.getApi = (req, res) =>{
+    res.send({endpoints})
+
+}
+
 exports.getTopics = (req, res, next) => {
   fetchAllTopics().then((topics) => {
     res.status(200).send({ topics });
