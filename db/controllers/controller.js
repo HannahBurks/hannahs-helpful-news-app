@@ -47,7 +47,7 @@ const filteredtopic = query.topic
 exports.patchArticleById = (req, res, next) => {
     const { article_id } = req.params;
     const votes = req.body;
-    const changeToVote = votes.inc_votes
+    const changeToVote = votes.votes
    updateArticleById({article_id, changeToVote}).then((article) => {
    res.status(200).send({article});
    }).catch((err) =>{
