@@ -92,7 +92,7 @@ describe("Get /api/articles/:article_id", () => {
 describe("PATCH /api/articles/:article_id", () => {
   test("Responds with status 200 and object with increased vote count", () => {
     const article_id = 3;
-    const voteUpdate = { votes: 5 };
+    const voteUpdate = { inc_votes: 5 };
     return request(app)
       .patch(`/api/articles/${article_id}`)
       .send(voteUpdate)
@@ -111,7 +111,7 @@ describe("PATCH /api/articles/:article_id", () => {
   });
   test("Responds with status 200 and object with decreased vote count", () => {
     const article_id = 1;
-    const voteUpdate = { votes: -20 };
+    const voteUpdate = { inc_votes: -20 };
     return request(app)
       .patch(`/api/articles/${article_id}`)
       .send(voteUpdate)
@@ -141,7 +141,7 @@ describe("PATCH /api/articles/:article_id", () => {
   });
   test("Responds with status 400 if given incorrect value type for vote update", () => {
     const article_id = 6;
-    const voteUpdate = { votes: "Here are some extra votes" };
+    const voteUpdate = { inc_votes: "Here are some extra votes" };
     return request(app)
       .patch(`/api/articles/${article_id}`)
       .send(voteUpdate)
@@ -152,7 +152,7 @@ describe("PATCH /api/articles/:article_id", () => {
   });
   test("Responds with status 404 if give article_id that does not exist", () => {
     const article_id = 687;
-    const voteUpdate = { votes: 6 };
+    const voteUpdate = { inc_votes: 6 };
     return request(app)
       .patch(`/api/articles/${article_id}`)
       .send(voteUpdate)
@@ -163,7 +163,7 @@ describe("PATCH /api/articles/:article_id", () => {
   });
   test("Responds with 400 and error message if given a string instead of number for ID", () => {
     const article_id = "tofu";
-    const voteUpdate = { votes: 8 };
+    const voteUpdate = { inc_votes: 8 };
     return request(app)
       .patch(`/api/articles/${article_id}`)
       .send(voteUpdate)
